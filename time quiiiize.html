@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Game</title>
+    <style>
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            text-align: center; 
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .container { 
+            max-width: 600px; 
+            margin: auto; 
+            padding: 20px; 
+            background: white; 
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            margin-top: 50px;
+            color: #333;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .options button { 
+            display: block; 
+            width: 100%; 
+            margin: 10px 0; 
+            padding: 12px; 
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: 0.3s;
+            background-color: #eee;
+        }
+        .options button:hover { 
+            background-color: #ddd;
+        }
+        .correct { background-color: #4CAF50 !important; color: white; animation: blink 0.5s; }
+        .wrong { background-color: #f44336 !important; color: white; animation: blink 0.5s; }
+        @keyframes blink {
+            50% { opacity: 0.6; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Quiz Game</h1>
+        <h2 id="difficulty"></h2>
+        <p id="question"></p>
+        <div class="options" id="options"></div>
+    </div>
+
+    <script>
+        class QuizGame {
+            constructor(questions) {
+                this.questions = questions;
+                this.currentIndex = 0;
+                this.score = 0;
+                this.shuffleAnswers();
+                this.displayQuestion();
+            }
+
+            shuffleAnswers() {
+                this.questions.forEach(q => {
+                    q.options = this.shuffleArray([...q.options]);
+                });
+            }
+
+            shuffleArray(array) {
+                return array.sort(() => Math.random() - 0.5);
+            }
+
+            displayQuestion() {
+                if (this.currentIndex < this.questions.length) {
+                    const q = this.questions[this.currentIndex];
+                    document.getElementById("difficulty").innerText = q.difficulty.toUpperCase() + " LEVEL";
+                    document.getElementById("question").innerText = q.question;
+                    const optionsContainer = document.getElementById("options");
+                    optionsContainer.innerHTML = "";
+                    q.options.forEach(option => {
+                        const button = document.createElement("button");
+                        button.innerText = option;
+                        button.onclick = () => this.answerQuestion(button, option);
+                        optionsContainer.appendChild(button);
+                    });
+                } else {
+                    document.body.innerHTML = `<div class='container'><h1>Game Over!</h1><p>Your final score is: ${this.score} / ${this.questions.length}</p></div>`;
+                }
+            }
+
+            answerQuestion(button, selectedOption) {
+                const q = this.questions[this.currentIndex];
+                const buttons = document.querySelectorAll(".options button");
+                buttons.forEach(btn => btn.disabled = true);
+                
+                if (selectedOption === q.correctAnswer) {
+                    button.classList.add("correct");
+                    this.score++;
+                } else {
+                    button.classList.add("wrong");
+                }
+                
+                setTimeout(() => {
+                    this.currentIndex++;
+                    this.displayQuestion();
+                }, 1000);
+            }
+        }
+
+        const questions = [
+            { difficulty: "easy", question: "I have hands but no arms, a face but no eyes. What am I?", correctAnswer: "A clock", options: ["A book", "A clock", "A mirror", "A face"] },
+            { difficulty: "easy", question: "The more you take, the more you leave behind. What am I?", correctAnswer: "Footsteps", options: ["Memories", "Footsteps", "Time", "Shadows"] },
+            { difficulty: "easy", question: "I can be long, I can be short; I can be bought, I can be wasted. What am I?", correctAnswer: "Time", options: ["Money", "Time", "Shadow", "Light"] },
+            { difficulty: "medium", question: "How many seconds are there in an hour?", correctAnswer: "3,600 seconds", options: ["3,600 seconds", "1,200 seconds", "60 seconds", "6,000 seconds"] },
+            { difficulty: "medium", question: "What is the smallest unit of time?", correctAnswer: "A zeptosecond", options: ["A nanosecond", "A zeptosecond", "A microsecond", "A millisecond"] },
+            { difficulty: "hard", question: "What does GMT stand for?", correctAnswer: "Greenwich Mean Time", options: ["Global Metric Time", "Greenwich Mean Time", "Great Meridian Time", "General Managed Time"] },
+            { difficulty: "hard", question: "Which calendar is most widely used in the world today?", correctAnswer: "The Gregorian calendar", options: ["The Julian calendar", "The Lunar calendar", "The Islamic calendar", "The Gregorian calendar"] }
+        ];
+
+        const game = new QuizGame(questions);
+    </script>
+</body>
+</html>
